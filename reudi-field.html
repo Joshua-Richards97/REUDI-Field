@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Borehole Master</title>
+    <title>Reudi Field</title>
     
     <!-- PWA Meta Tags -->
     <meta name="description" content="MiniRUEDI field gas analysis and groundwater monitoring tool">
-    <meta name="theme-color" content="#1e3a8a">
+    <meta name="theme-color" content="#061229">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Reudi Field">
     <link rel="manifest" href="reudi-manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="reudi-icon-192.png">
     
     <style>
         /* ═══════════════════════════════════════════════
@@ -977,11 +977,11 @@
             </div>
             <input type="file" id="importJSONInput" accept=".json" style="display:none" onchange="importDataJSON(event)">
             <div class="subtab-bar">
-                <button class="subtab active haptic-btn" onclick="switchSubTab('calculator-logs')">Calculator</button>
+                <button class="subtab active haptic-btn" onclick="switchSubTab('gas-logs')">Reudi Data</button>
+                <button class="subtab haptic-btn" onclick="switchSubTab('calculator-logs')">Calculator</button>
                 <button class="subtab haptic-btn" onclick="switchSubTab('gw-logs')">GW Levels</button>
-                <button class="subtab haptic-btn" onclick="switchSubTab('gas-logs')">Gas Analysis</button>
             </div>
-            <div id="calculator-logs" class="subtab-content active">
+            <div id="calculator-logs" class="subtab-content">
                 <div class="btn-row" style="margin-bottom:10px;">
                     <button class="btn btn-green haptic-btn btn-sm" onclick="exportLogsCSV()">Export CSV</button>
                     <button class="btn pdf-btn haptic-btn btn-sm" onclick="exportAllLogsPDF()">Export PDF</button>
@@ -1029,7 +1029,7 @@
                 <div id="gwLogFilterCount" style="font-size:11px;color:var(--hint);margin-bottom:8px;"></div>
                 <div id="gwLogsContainer"><div class="no-data">No groundwater monitoring points saved yet.</div></div>
             </div>
-            <div id="gas-logs" class="subtab-content">
+            <div id="gas-logs" class="subtab-content active">
                 <div class="project-filter-bar">
                     <label style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:0;white-space:nowrap;">Project</label>
                     <select id="gasLogProjectFilter" onchange="filterGasLogs()" style="flex:1;font-size:13px;padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);">
@@ -1581,7 +1581,7 @@
             document.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.subtab-content').forEach(c => c.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
-            const map = {'calculator-logs':0, 'gw-logs':1, 'gas-logs':2};
+            const map = {'gas-logs':0, 'calculator-logs':1, 'gw-logs':2};
             const idx = map[tabName] !== undefined ? map[tabName] : 0;
             const subtabs = document.querySelectorAll('#screen-logs .subtab');
             if (subtabs[idx]) subtabs[idx].classList.add('active');
@@ -2735,7 +2735,11 @@
                 setTimeout(function() {
                     splash.style.display = 'none';
                 }, 500);
-            }, 1500); // Show splash for 1.5 seconds
+                // Init the default (gas) screen after splash — fixes blank screen on startup
+                initGasAnalysisScreen();
+                refreshProjectDropdowns();
+                if (activeProject) setActiveProject(activeProject);
+            }, 1500);
         });
         
         // =============================================
@@ -5890,6 +5894,8 @@
             if (tabName === 'gas-logs') renderGasLogsTab();
         };
         window.switchSubTab = switchSubTab;
+        // Render gas logs immediately since it's the default tab
+        setTimeout(() => renderGasLogsTab(), 100);
 
         // ── Backup/restore with gas records ───────────────────────────
         const _origExportJSON = exportAllDataJSON;
