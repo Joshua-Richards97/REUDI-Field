@@ -1849,15 +1849,36 @@
                 <!-- Pump rate (hidden for grab) -->
                 <div class="section-card" style="margin-bottom:10px;" id="chemPumpRateCard">
                     <div class="section-title" style="margin-bottom:10px;">Pump Rate</div>
-                    <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;align-items:flex-end;">
-                        <div class="input-group" style="margin-bottom:0;">
-                            <label>Flow Rate (L/min)</label>
-                            <input type="number" id="chemPumpRate" step="0.01" placeholder="e.g. 0.50" inputmode="decimal"
-                                style="font-size:18px;font-weight:700;padding:10px 12px;" oninput="updateChemPurgeProg()">
+                    <!-- Entry state (unlocked) -->
+                    <div id="chemPumpRateEntry" style="display:block;">
+                        <div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;align-items:flex-end;">
+                            <div class="input-group" style="margin-bottom:0;">
+                                <label>Flow Rate (L/min)</label>
+                                <input type="number" id="chemPumpRate" step="0.01" placeholder="e.g. 0.50" inputmode="decimal"
+                                    style="font-size:18px;font-weight:700;padding:10px 12px;" oninput="updateChemPurgeProg()">
+                            </div>
+                            <button onclick="lockPumpRate()" style="padding:10px 0;background:var(--navy);color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;width:100%;">Confirm</button>
                         </div>
-                        <div style="text-align:center;padding-bottom:2px;">
-                            <div style="font-size:10px;color:var(--hint);margin-bottom:2px;">Required</div>
-                            <div id="chemRequiredVol" style="font-size:15px;font-weight:800;color:var(--navy);">— L</div>
+                    </div>
+                    <!-- Locked state -->
+                    <div id="chemPumpRateLocked" style="display:none;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:10px;padding:10px 14px;">
+                            <div>
+                                <div style="font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;">Flow Rate (locked)</div>
+                                <div style="font-size:20px;font-weight:800;color:var(--navy);"><span id="chemPumpRateDisplay">—</span> <span style="font-size:12px;color:var(--muted);">L/min</span></div>
+                            </div>
+                            <button onclick="unlockPumpRate()" style="padding:6px 12px;background:none;border:1.5px solid var(--border);border-radius:8px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;">Change</button>
+                        </div>
+                    </div>
+                    <!-- Required volume + time estimate -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+                        <div style="background:var(--bg);border-radius:8px;padding:8px 10px;text-align:center;">
+                            <div style="font-size:10px;color:var(--hint);margin-bottom:2px;">Required Volume</div>
+                            <div id="chemRequiredVol" style="font-size:16px;font-weight:800;color:var(--navy);">— L</div>
+                        </div>
+                        <div style="background:var(--bg);border-radius:8px;padding:8px 10px;text-align:center;">
+                            <div style="font-size:10px;color:var(--hint);margin-bottom:2px;">Time to Complete</div>
+                            <div id="chemPurgeMinutes" style="font-size:16px;font-weight:800;color:var(--navy);">— min</div>
                         </div>
                     </div>
                     <div id="chemPurgeProgressWrap" style="margin-top:10px;display:none;">
@@ -3749,9 +3770,10 @@
                         <td>${test.measurements.length}</td>
                         <td>${test.flowRate}</td>
                         <td>
-                            <button class="delete-btn" onclick="exportSingleRecoveryTest(${test.id})" style="background: #4CAF50;">Export</button>
-                            <button class="delete-btn" onclick="openAssignProjectModal('rec','${test.id}')" style="background:#7c3aed;">Project</button>
-                            <button class="delete-btn" onclick="deleteRecoveryTest(${test.id})">Delete</button>
+                            <button class="btn btn-green btn-sm haptic-btn" onclick="exportSingleRecoveryTest(${test.id})" style="font-size:10px;">Export</button>
+                            <button class="btn btn-ghost btn-sm haptic-btn" onclick="openAssignProjectModal('rec','${test.id}')" style="font-size:10px;border-color:#7c3aed;color:#7c3aed;">Project</button>
+                            <button class="btn btn-ghost btn-sm haptic-btn" onclick="exportSingleRecoveryPDF('${test.id}')" style="font-size:10px;">PDF</button>
+                            <button class="btn btn-red btn-sm haptic-btn" onclick="deleteRecoveryTest('${test.id}')" style="font-size:10px;">🗑</button>
                         </td>
                     </tr>
                 `;
@@ -5466,6 +5488,7 @@
                                 <button class="btn btn-ghost btn-sm haptic-btn" onclick="editLog('${log.id}')" style="font-size:10px;">Edit</button>
                                 <button class="btn btn-purple btn-sm haptic-btn" onclick="exportSingleLogPDF('${log.id}')" style="font-size:10px;">PDF</button>
                                 <button class="btn btn-ghost btn-sm haptic-btn" onclick="openAssignProjectModal('bh','${log.id}')" style="font-size:10px;border-color:#7c3aed;color:#7c3aed;">Project</button>
+                                <button class="btn btn-red btn-sm haptic-btn" onclick="deleteLog('${log.id}')" style="font-size:10px;">🗑</button>
                             </div>
                         </div>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;">
@@ -10250,8 +10273,8 @@
 
         function updateChemPurgeProg() {
             const reqEl = document.getElementById('chemRequiredVol');
+            const minEl = document.getElementById('chemPurgeMinutes');
             if (!reqEl) return;
-            // Pull required vol from active borehole + latest water level
             let reqL = null;
             const bh = activeBorehole;
             if (bh && bh.depth && bh.diameter) {
@@ -10265,8 +10288,18 @@
             }
             if (!reqL) { const pd=document.getElementById('purgeDisplay'); if(pd) reqL=parseFloat(pd.textContent)||null; }
             reqEl.textContent = reqL ? reqL.toFixed(1)+' L' : '— L';
-            if (chemMethod!=='purge3'||!reqL) return;
             const pumpRate = parseFloat(document.getElementById('chemPumpRate')?.value)||0;
+            if (minEl) {
+                if (reqL && pumpRate > 0) {
+                    const mins = reqL / pumpRate;
+                    minEl.textContent = mins >= 60
+                        ? `${Math.floor(mins/60)}h ${Math.round(mins%60)}m`
+                        : `${mins.toFixed(1)} min`;
+                } else {
+                    minEl.textContent = '— min';
+                }
+            }
+            if (chemMethod!=='purge3'||!reqL) return;
             let purgedL=0;
             chemReadings.forEach((r,i)=>{
                 if(i>0){ const rate=r.pumpRate||pumpRate; if(rate) purgedL+=rate*(r.elapsed-chemReadings[i-1].elapsed); }
@@ -10280,6 +10313,29 @@
             if(lbl) lbl.textContent=`${purgedL.toFixed(1)} L purged of ${reqL.toFixed(1)} L required`;
         }
         window.updateChemPurgeProg = updateChemPurgeProg;
+
+        function lockPumpRate() {
+            const rate = parseFloat(document.getElementById('chemPumpRate')?.value)||0;
+            if (!rate || rate <= 0) { showToast('Enter a valid pump rate first','error'); return; }
+            const entryEl  = document.getElementById('chemPumpRateEntry');
+            const lockedEl = document.getElementById('chemPumpRateLocked');
+            const dispEl   = document.getElementById('chemPumpRateDisplay');
+            if (entryEl)  entryEl.style.display  = 'none';
+            if (lockedEl) lockedEl.style.display = 'block';
+            if (dispEl)   dispEl.textContent = rate.toFixed(2);
+            updateChemPurgeProg();
+            haptic('medium');
+        }
+        window.lockPumpRate = lockPumpRate;
+
+        function unlockPumpRate() {
+            const entryEl  = document.getElementById('chemPumpRateEntry');
+            const lockedEl = document.getElementById('chemPumpRateLocked');
+            if (entryEl)  entryEl.style.display  = 'block';
+            if (lockedEl) lockedEl.style.display = 'none';
+            haptic('light');
+        }
+        window.unlockPumpRate = unlockPumpRate;
 
         function addChemReading(manual) {
             const now = new Date();
@@ -11107,7 +11163,14 @@
                         </div>
                         <div style="font-size:11px;color:var(--hint);text-align:right;">${s.timestamp||''}<br>${s.project||''}</div>
                     </div>
-                    <div style="font-size:11px;color:var(--muted);">${(s.readings||[]).length} readings</div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+                        <div style="font-size:11px;color:var(--muted);">${(s.readings||[]).length} readings</div>
+                        <div style="display:flex;gap:6px;">
+                            <button class="btn btn-purple btn-sm haptic-btn" onclick="_exportSingleChemSessionPDF(${s.id})" style="font-size:10px;">PDF</button>
+                            <button class="btn btn-green btn-sm haptic-btn" onclick="_exportSingleChemSessionCSV(${s.id})" style="font-size:10px;">CSV</button>
+                            <button class="btn btn-red btn-sm haptic-btn" onclick="_deleteChemSession(${s.id})" style="font-size:10px;">🗑</button>
+                        </div>
+                    </div>
                 </div>`
             ).join('');
         }
