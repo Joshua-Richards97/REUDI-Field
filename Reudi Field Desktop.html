@@ -915,7 +915,16 @@ body{background:#061229}
                     <div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.7);margin-bottom:2px;">Active Project</div><div id="reudiTopProjectName" style="font-size:15px;font-weight:800;color:white;">No project selected</div></div>
                     <div style="display:flex;gap:6px;"><button class="btn btn-sm haptic-btn" onclick="openNewProjectModal()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;font-size:11px;">+ New</button><button class="btn btn-sm haptic-btn" onclick="openProjectPickerFor('reudi')" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;font-size:11px;">Switch</button></div>
                 </div>
-                <div style="margin-top:8px;background:rgba(255,255,255,0.12);border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.6);">Active Borehole</div><div id="activeBHName_reudi" style="font-size:13px;font-weight:700;color:white;">None selected</div></div><button class="btn btn-sm haptic-btn" onclick="openBHPickerFor('reudi')" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;font-size:11px;">Switch</button></div>
+                <div id="bhRow_reudi" style="margin-top:8px;background:rgba(255,255,255,0.12);border-radius:8px;padding:8px 12px;">
+                    <div id="noBH_reudi" style="display:flex;justify-content:space-between;align-items:center;">
+                        <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.6);">Active Borehole</div><div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">No borehole selected</div></div>
+                        <button class="btn btn-sm haptic-btn" onclick="openNewBoreholeModal()" style="background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.4);color:white;font-size:11px;font-weight:700;">+ Create BH</button>
+                    </div>
+                    <div id="activeBHRow_reudi" style="display:none;justify-content:space-between;align-items:center;">
+                        <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.6);">Active Borehole</div><div id="activeBHName_reudi" style="font-size:13px;font-weight:700;color:white;">—</div></div>
+                        <button class="btn btn-sm haptic-btn" onclick="openBHPickerFor('reudi')" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;font-size:11px;">Switch</button>
+                    </div>
+                </div>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
                 <h1 style="margin:0;">MiniRUEDI Gas Analysis</h1>
@@ -926,13 +935,35 @@ body{background:#061229}
                 <div class="section-card" style="border-left:4px solid var(--navy);">
                     <div class="section-title">Site Identification</div>
                     <div class="info-banner" style="margin-bottom:10px;font-size:12px;">All depth values are in metres below wellhead (m bwh)</div>
-                    <div class="input-group"><label>Project</label><div id="gasActiveProjectBanner" class="project-active-banner" style="display:none;"><div><div style="font-size:10px;opacity:0.8;margin-bottom:2px;">Active Project</div><div class="pa-name" id="gasActiveProjectName"></div></div><button class="pa-clear haptic-btn" onclick="clearActiveProject()">Change</button></div><div class="project-selector-row" id="gasProjectSelectorRow"><select id="gasProjectSelect" onchange="onProjectSelectChange('gas')" style="flex:1;font-size:14px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);"><option value="">— No Project —</option></select></div></div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                        <div class="input-group"><label>Date</label><input type="date" id="gasDate"></div>
-                        <div class="input-group"><label>Location / BH ID</label><div style="display:flex;gap:6px;"><input type="text" id="gasLocation" placeholder="e.g. 21.J.98-Deep" style="flex:1;"><button class="btn btn-ghost btn-sm haptic-btn" onclick="openBHPickerFor('reudi')" style="flex-shrink:0;padding:8px 10px;font-size:13px;">&#128279;</button></div></div>
-                        <div class="input-group"><label>Sampler</label><input type="text" id="gasSampler" placeholder="e.g. JR" autocomplete="name"></div>
-                        <div class="input-group"><label>Sample Depth (m bwh)</label><input type="number" id="gasSampleDepth" step="0.01" placeholder="0.00" inputmode="decimal"></div>
+                    <!-- No BH state -->
+                    <div id="noBHState_reudi" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:4px 0 10px;">
+                        <div style="font-size:12px;color:var(--muted);text-align:center;">No active borehole — create one to pre-fill site parameters.</div>
+                        <button class="btn btn-primary haptic-btn" onclick="openNewBoreholeModal()" style="width:100%;padding:12px;font-size:13px;font-weight:700;">🕳 Create Borehole</button>
                     </div>
+                    <!-- Active BH state — shown when BH is active -->
+                    <div id="activeBHState_reudi" style="display:none;">
+                        <div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                                <div style="font-size:15px;font-weight:800;color:var(--navy);" id="reudiDisplayId">—</div>
+                                <button class="btn btn-ghost btn-sm haptic-btn" onclick="openBHPickerFor('reudi')" style="font-size:11px;">Switch</button>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;color:var(--muted);">
+                                <span>Depth <span id="reudiDisplayDepth">—</span> m bwh</span>
+                                <span>WL <span id="reudiDisplayWL">—</span> m bTOC</span>
+                                <span id="reudiDisplayGPS" style="grid-column:1/-1;"></span>
+                            </div>
+                        </div>
+                        <!-- Project shown only when BH active -->
+                        <div class="input-group"><label>Project</label><div id="gasActiveProjectBanner" class="project-active-banner" style="display:none;"><div><div style="font-size:10px;opacity:0.8;margin-bottom:2px;">Active Project</div><div class="pa-name" id="gasActiveProjectName"></div></div><button class="pa-clear haptic-btn" onclick="clearActiveProject()">Change</button></div><div class="project-selector-row" id="gasProjectSelectorRow"><select id="gasProjectSelect" onchange="onProjectSelectChange('gas')" style="flex:1;font-size:14px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);"><option value="">— No Project —</option></select></div></div>
+                        <!-- Always editable -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div class="input-group"><label>Date</label><input type="date" id="gasDate"></div>
+                            <div class="input-group"><label>Sampler</label><input type="text" id="gasSampler" placeholder="e.g. JR" autocomplete="name"></div>
+                            <div class="input-group"><label>Sample Depth (m bwh)</label><input type="number" id="gasSampleDepth" step="0.01" placeholder="0.00" inputmode="decimal"></div>
+                        </div>
+                    </div>
+                    <!-- Hidden inputs — always present for form reads -->
+                    <input type="hidden" id="gasLocation">
                     <div style="margin-top:8px;"><label style="margin-bottom:6px;">GPS Coordinates</label><div class="gps-row"><span class="chip idle haptic-btn" id="gasGpsBtn" onclick="captureGasGPS()">&#9679; Capture GPS</span><span class="chip haptic-btn" id="gasGpsClearBtn" onclick="clearGasGPS()" style="display:none;background:#fef2f2;border-color:#fca5a5;color:#b91c1c;">Clear GPS</span></div><div class="gps-coords" id="gasGpsCoordsDisplay" style="margin-top:6px;"></div></div>
                 </div>
                 <div class="section-card" style="border-left:4px solid var(--blue);">
@@ -995,40 +1026,62 @@ body{background:#061229}
                             <button class="btn btn-sm haptic-btn" onclick="openProjectPickerCalc()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;font-size:11px;">Switch</button>
                         </div>
                     </div>
-                    <div style="margin-top:8px;background:rgba(255,255,255,0.12);border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
-                        <div>
-                            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.6);">Active Borehole</div>
-                            <div id="activeBHName_calc" style="font-size:13px;font-weight:700;color:white;">None selected</div>
+                                        <div id="bhRow_calc" style="margin-top:8px;background:rgba(255,255,255,0.12);border-radius:8px;padding:8px 12px;">
+                        <!-- No BH state -->
+                        <div id="noBH_calc" style="display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.6);">Active Borehole</div>
+                                <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">No borehole selected</div>
+                            </div>
+                            <button class="btn btn-sm haptic-btn" onclick="openNewBoreholeModal()" style="background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.4);color:white;font-size:11px;font-weight:700;">+ Create BH</button>
                         </div>
-                        <button class="btn btn-sm haptic-btn" onclick="openBHPickerFor('calc')" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;font-size:11px;">Switch</button>
+                        <!-- Active BH state -->
+                        <div id="activeBHRow_calc" style="display:none;justify-content:space-between;align-items:center;">
+                            <div>
+                                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.6);">Active Borehole</div>
+                                <div id="activeBHName_calc" style="font-size:13px;font-weight:700;color:white;">—</div>
+                            </div>
+                            <button class="btn btn-sm haptic-btn" onclick="openBHPickerFor('calc')" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;font-size:11px;">Switch</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- BH ID + Project -->
                 <div class="section-card" style="padding:12px 14px;">
                     <div class="section-title" style="margin-bottom:8px;">Borehole</div>
-                    <!-- Borehole selector -->
-                    <div class="input-group" style="margin-bottom:10px;">
-                        <label>Link to Borehole <span style="font-size:10px;color:var(--hint);">auto-fills parameters</span></label>
-                        <select id="calcBHSelector" onchange="onCalcBHSelectorChange()" style="width:100%;font-size:14px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);">
-                            <option value="">+ Register New Borehole…</option>
-                        </select>
+                    <!-- No BH state -->
+                    <div id="noBHState_calc" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0;">
+                        <div style="font-size:12px;color:var(--muted);text-align:center;">No active borehole — create one to begin.</div>
+                        <button class="btn btn-primary haptic-btn" onclick="openNewBoreholeModal()" style="width:100%;padding:12px;font-size:13px;font-weight:700;">🕳 Create Borehole</button>
                     </div>
-                    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-                        <input type="text" id="bhId" placeholder="e.g. BH-001" style="flex:1;">
-                        <button class="btn btn-primary haptic-btn" id="createLogBtn" onclick="createLog()" style="flex-shrink:0;padding:12px 18px;">Create Log</button>
+                    <!-- Active BH state -->
+                    <div id="activeBHState_calc" style="display:none;">
+                        <div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:10px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                                <div style="font-size:15px;font-weight:800;color:var(--navy);" id="calcBHDisplayId">—</div>
+                                <button class="btn btn-ghost btn-sm haptic-btn" onclick="openBHPickerFor('calc')" style="font-size:11px;">Switch</button>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;color:var(--muted);">
+                                <span>⌀ <span id="calcBHDisplayDiam">—</span> mm</span>
+                                <span>Depth <span id="calcBHDisplayDepth">—</span> m</span>
+                                <span>WL <span id="calcBHDisplayWL">—</span> m bTOC</span>
+                                <span>Stand-up <span id="calcBHDisplayStandUp">—</span> m</span>
+                            </div>
+                        </div>
+                        <input type="hidden" id="bhId">
+                        <input type="hidden" id="calcBHSelector">
+                        <input type="hidden" id="projectName" value="">
+                        <button class="btn btn-primary haptic-btn" id="createLogBtn" onclick="createLog()" style="width:100%;padding:12px 18px;">Create Log</button>
                     </div>
+                    <!-- Hidden project inputs still needed by JS -->
                     <div id="calcActiveProjectBanner" class="project-active-banner" style="display:none;">
                         <div><div style="font-size:10px;opacity:0.8;margin-bottom:2px;">Active Project</div><div class="pa-name" id="calcActiveProjectName"></div></div>
                         <button class="pa-clear haptic-btn" onclick="clearActiveProject()">Change</button>
                     </div>
-                    <div class="project-selector-row" id="calcProjectSelectorRow">
-                        <select id="projectSelect" onchange="onProjectSelectChange('calc')" style="flex:1;font-size:14px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);">
-                            <option value="">— No Project —</option>
-                        </select>
-                        <button class="btn btn-ghost btn-sm haptic-btn" onclick="openNewProjectModal()" style="white-space:nowrap;flex-shrink:0;">+ New</button>
-                    </div>
-                    <input type="hidden" id="projectName" value="">
+                    <select id="projectSelect" onchange="onProjectSelectChange('calc')" style="display:none;">
+                        <option value="">— No Project —</option>
+                    </select>
+                    <div id="calcProjectSelectorRow" style="display:none;"></div>
                 </div>
 
                 <!-- Diagram (live, updates as values change) -->
@@ -1156,12 +1209,23 @@ body{background:#061229}
                         </div>
                     </div>
                     <!-- Active Borehole row -->
-                    <div style="margin-top:8px;background:rgba(255,255,255,0.12);border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
-                        <div>
-                            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.6);">Active Borehole</div>
-                            <div id="activeBHName_gw" style="font-size:13px;font-weight:700;color:white;">None selected</div>
+                                        <div id="bhRow_gw" style="margin-top:8px;background:rgba(255,255,255,0.12);border-radius:8px;padding:8px 12px;">
+                        <!-- No BH state -->
+                        <div id="noBH_gw" style="display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.6);">Active Borehole</div>
+                                <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">No borehole selected</div>
+                            </div>
+                            <button class="btn btn-sm haptic-btn" onclick="openNewBoreholeModal()" style="background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.4);color:white;font-size:11px;font-weight:700;">+ Create BH</button>
                         </div>
-                        <button class="btn btn-sm haptic-btn" onclick="openBHPickerFor('gw')" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;font-size:11px;">Switch</button>
+                        <!-- Active BH state -->
+                        <div id="activeBHRow_gw" style="display:none;justify-content:space-between;align-items:center;">
+                            <div>
+                                <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.6);">Active Borehole</div>
+                                <div id="activeBHName_gw" style="font-size:13px;font-weight:700;color:white;">—</div>
+                            </div>
+                            <button class="btn btn-sm haptic-btn" onclick="openBHPickerFor('gw')" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;font-size:11px;">Switch</button>
+                        </div>
                     </div>
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1413,12 +1477,23 @@ body{background:#061229}
                         <button class="btn btn-sm haptic-btn" onclick="openProjectPickerGeneric()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;font-size:11px;">Switch</button>
                     </div>
                 </div>
-                <div style="margin-top:8px;background:rgba(255,255,255,0.12);border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;">
-                    <div>
-                        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.6);">Active Borehole</div>
-                        <div id="activeBHName_recovery" style="font-size:13px;font-weight:700;color:white;">None selected</div>
+                                <div id="bhRow_recovery" style="margin-top:8px;background:rgba(255,255,255,0.12);border-radius:8px;padding:8px 12px;">
+                    <!-- No BH state -->
+                    <div id="noBH_recovery" style="display:flex;justify-content:space-between;align-items:center;">
+                        <div>
+                            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.6);">Active Borehole</div>
+                            <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">No borehole selected</div>
+                        </div>
+                        <button class="btn btn-sm haptic-btn" onclick="openNewBoreholeModal()" style="background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.4);color:white;font-size:11px;font-weight:700;">+ Create BH</button>
                     </div>
-                    <button class="btn btn-sm haptic-btn" onclick="openBHPickerFor('recovery')" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;font-size:11px;">Switch</button>
+                    <!-- Active BH state -->
+                    <div id="activeBHRow_recovery" style="display:none;justify-content:space-between;align-items:center;">
+                        <div>
+                            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.6);">Active Borehole</div>
+                            <div id="activeBHName_recovery" style="font-size:13px;font-weight:700;color:white;">—</div>
+                        </div>
+                        <button class="btn btn-sm haptic-btn" onclick="openBHPickerFor('recovery')" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;font-size:11px;">Switch</button>
+                    </div>
                 </div>
             </div>
             <!-- Sample sub-tab selector -->
@@ -1434,33 +1509,28 @@ body{background:#061229}
 
             <!-- Step 1 -->
             <div class="section-card" style="border-left:4px solid var(--navy);">
-                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
                     <div style="width:24px;height:24px;border-radius:50%;background:var(--navy);color:white;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
                     <div class="section-title" style="margin:0;border:none;padding:0;">Set Up the Test</div>
                 </div>
-                <div class="info-banner" style="margin-bottom:12px;">Link to a saved borehole to pre-fill well parameters, or enter manually.</div>
-                <div class="input-group">
-                    <label>Project / Site</label>
-                    <div id="recoveryActiveProjectBanner" class="project-active-banner" style="display:none;">
-                        <div><div style="font-size:10px;opacity:0.8;margin-bottom:2px;">Active Project</div><div class="pa-name" id="recoveryActiveProjectName"></div></div>
-                        <button class="pa-clear haptic-btn" onclick="clearActiveProject()">Change</button>
-                    </div>
-                    <div class="project-selector-row" id="recoveryProjectSelectorRow">
-                        <select id="recoveryProjectSelect" onchange="onProjectSelectChange('recovery')" style="flex:1;font-size:14px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);">
-                            <option value="">— No Project —</option>
-                        </select>
-                    </div>
+                <!-- No BH state -->
+                <div id="noBHState_recovery" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:4px 0 12px;">
+                    <div style="font-size:12px;color:var(--muted);text-align:center;">No active borehole — create one to begin.</div>
+                    <button class="btn btn-primary haptic-btn" onclick="openNewBoreholeModal()" style="width:100%;padding:12px;font-size:13px;font-weight:700;">🕳 Create Borehole</button>
                 </div>
-                <div class="input-group">
-                    <label>Link to Borehole <span style="font-size:10px;color:var(--hint);">auto-fills parameters</span></label>
-                    <select id="linkBorehole" onchange="onRecoveryBHSelectorChange()">
-                        <option value="">+ Register New Borehole…</option>
-                    </select>
-                </div>
-                <div class="recovery-inputs">
-                    <div class="input-group">
-                        <label>BH ID</label>
-                        <input type="text" id="recoveryBhId" placeholder="e.g. BH-001">
+                <!-- Active BH display -->
+                <div id="activeBHState_recovery" style="display:none;">
+                    <div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:12px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <div style="font-size:15px;font-weight:800;color:var(--navy);" id="recBHDisplayId">—</div>
+                            <button class="btn btn-ghost btn-sm haptic-btn" onclick="openBHPickerFor('recovery')" style="font-size:11px;">Switch</button>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;color:var(--muted);">
+                            <span>⌀ <span id="recBHDisplayDiam">—</span> mm</span>
+                            <span>Depth <span id="recBHDisplayDepth">—</span> m</span>
+                            <span>WL <span id="recBHDisplayWL">—</span> m bTOC</span>
+                            <span>Stand-up <span id="recBHDisplayStandUp">—</span> m</span>
+                        </div>
                     </div>
                     <div class="input-group">
                         <label>Sampler Name</label>
@@ -1470,19 +1540,16 @@ body{background:#061229}
                         <label>Static Water Level (m bTOC)</label>
                         <input type="number" id="staticWaterLevel" value="3" min="0" step="0.01" inputmode="decimal">
                     </div>
-                    <div class="input-group">
-                        <label>Stand-up (m)</label>
-                        <input type="number" id="recoveryStandUp" value="0.5" min="0" step="0.1" inputmode="decimal">
-                    </div>
-                    <div class="input-group">
-                        <label>Diameter (mm)</label>
-                        <input type="number" id="recoveryDiameter" value="150" min="1" step="1" inputmode="decimal">
-                    </div>
-                    <div class="input-group">
-                        <label>Well Depth (m bTOC)</label>
-                        <input type="number" id="recoveryWellDepth" value="10" min="0" step="0.1" inputmode="decimal">
-                    </div>
                 </div>
+                <!-- Hidden inputs needed by JS -->
+                <input type="hidden" id="linkBorehole">
+                <input type="hidden" id="recoveryBhId">
+                <input type="hidden" id="recoveryStandUp" value="0.5">
+                <input type="hidden" id="recoveryDiameter" value="150">
+                <input type="hidden" id="recoveryWellDepth" value="10">
+                <select id="recoveryProjectSelect" style="display:none;"><option value="">— No Project —</option></select>
+                <div id="recoveryProjectSelectorRow" style="display:none;"></div>
+                <div id="recoveryActiveProjectBanner" style="display:none;"><div class="pa-name" id="recoveryActiveProjectName"></div></div>
             </div>
 
             <!-- Step 2 -->
@@ -1592,20 +1659,34 @@ body{background:#061229}
                 <!-- Borehole -->
                 <div class="section-card" style="margin-bottom:10px;">
                     <div class="section-title" style="margin-bottom:10px;">Borehole</div>
-                    <div class="input-group" style="margin-bottom:8px;">
-                        <label>Link Borehole <span style="font-size:10px;color:var(--hint);">auto-fills parameters</span></label>
-                        <select id="chemBHSelector" onchange="onChemBHSelectorChange()" style="width:100%;font-size:14px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);">
-                            <option value="">+ Register New Borehole…</option>
-                        </select>
+                    <!-- No BH state -->
+                    <div id="noBHState_chem" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0;">
+                        <div style="font-size:12px;color:var(--muted);text-align:center;">No active borehole — create one to pre-fill parameters.</div>
+                        <button class="btn btn-primary haptic-btn" onclick="openNewBoreholeModal()" style="width:100%;padding:12px;font-size:13px;font-weight:700;">🕳 Create Borehole</button>
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                        <div class="input-group" style="margin-bottom:0;">
-                            <label>BH ID</label>
-                            <input type="text" id="chemBhId" placeholder="BH-001" style="font-size:14px;padding:9px 10px;">
+                    <!-- Active BH display -->
+                    <div id="activeBHState_chem" style="display:none;">
+                        <div style="background:var(--bg);border-radius:10px;padding:10px 12px;margin-bottom:10px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                                <div style="font-size:15px;font-weight:800;color:var(--navy);" id="chemBHDisplayId">—</div>
+                                <button class="btn btn-ghost btn-sm haptic-btn" onclick="openBHPickerFor('chem')" style="font-size:11px;">Switch</button>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;color:var(--muted);">
+                                <span>⌀ <span id="chemBHDisplayDiam">—</span> mm</span>
+                                <span>Depth <span id="chemBHDisplayDepth">—</span> m</span>
+                                <span>WL <span id="chemBHDisplayWL">—</span> m bTOC</span>
+                            </div>
                         </div>
-                        <div class="input-group" style="margin-bottom:0;">
-                            <label>Sampler</label>
-                            <input type="text" id="chemSampler" placeholder="J. Smith" autocomplete="name" style="font-size:14px;padding:9px 10px;">
+                        <input type="hidden" id="chemBHSelector">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                            <div class="input-group" style="margin-bottom:0;">
+                                <label>BH ID</label>
+                                <input type="text" id="chemBhId" placeholder="BH-001" style="font-size:14px;padding:9px 10px;">
+                            </div>
+                            <div class="input-group" style="margin-bottom:0;">
+                                <label>Sampler</label>
+                                <input type="text" id="chemSampler" placeholder="J. Smith" autocomplete="name" style="font-size:14px;padding:9px 10px;">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1701,6 +1782,28 @@ body{background:#061229}
 
             <div id="samplePanelPurge" class="sample-panel">
 
+                <!-- BH state card — mirrors screen-calculator -->
+                <div class="section-card" style="padding:12px 14px;margin-bottom:0;">
+                    <div class="section-title" style="margin-bottom:8px;">Borehole</div>
+                    <div id="noBHState_purge" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0;">
+                        <div style="font-size:12px;color:var(--muted);text-align:center;">No active borehole — create one to begin.</div>
+                        <button class="btn btn-primary haptic-btn" onclick="openNewBoreholeModal()" style="width:100%;padding:12px;font-size:13px;font-weight:700;">🕳 Create Borehole</button>
+                    </div>
+                    <div id="activeBHState_purge" style="display:none;">
+                        <div style="background:var(--bg);border-radius:10px;padding:10px 12px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                                <div style="font-size:15px;font-weight:800;color:var(--navy);" id="purgeBHDisplayId">—</div>
+                                <button class="btn btn-ghost btn-sm haptic-btn" onclick="openBHPickerFor('calc')" style="font-size:11px;">Switch</button>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;color:var(--muted);">
+                                <span>⌀ <span id="purgeBHDisplayDiam">—</span> mm</span>
+                                <span>Depth <span id="purgeBHDisplayDepth">—</span> m</span>
+                                <span>WL <span id="purgeBHDisplayWL">—</span> m bTOC</span>
+                                <span>Stand-up <span id="purgeBHDisplayStandUp">—</span> m</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             <div class="main-grid">
 
@@ -2408,6 +2511,52 @@ body{background:#061229}
         const BUILD_VERSION = 'v16';
         console.log(`Borehole Master ${BUILD_VERSION} (${BUILD_DATE})`);
 
+        // Hoisted — used by functions defined before their section
+        let activeBorehole = null;
+        let activeProject   = null;
+
+        function drawBoreholePlaceholder() {
+            const c = canvas;
+            if (!c) return;
+            const x = c.getContext('2d');
+            const W = c.width, H = c.height;
+            x.clearRect(0, 0, W, H);
+            const groundY = 44, grassH = 8, casingW = 48;
+            const casingTop = groundY + grassH, casingBot = H - 24;
+            const casingH = casingBot - casingTop, cx = W / 2;
+            x.fillStyle = '#f0f6ff'; x.fillRect(0, 0, W, groundY);
+            x.fillStyle = '#4caf7d'; x.fillRect(0, groundY, W, grassH);
+            const sg = x.createLinearGradient(0, casingTop, 0, H);
+            sg.addColorStop(0,'#c8a97a'); sg.addColorStop(0.5,'#b8956a'); sg.addColorStop(1,'#a07850');
+            x.fillStyle = sg; x.fillRect(0, casingTop, W, H - casingTop);
+            x.fillStyle = '#1a1a2e'; x.fillRect(cx-casingW/2, casingTop, casingW, casingH);
+            const waterStart = casingTop + casingH*0.55, waterH = casingH*0.45;
+            const wg = x.createLinearGradient(0, waterStart, 0, casingBot);
+            wg.addColorStop(0,'#63b3ed'); wg.addColorStop(1,'#1e40af');
+            x.fillStyle = wg; x.fillRect(cx-casingW/2, waterStart, casingW, waterH);
+            x.strokeStyle='#93c5fd'; x.lineWidth=1.5; x.beginPath();
+            x.moveTo(cx-casingW/2,waterStart); x.lineTo(cx+casingW/2,waterStart); x.stroke();
+            x.strokeStyle='#78909c'; x.lineWidth=3; x.setLineDash([6,4]);
+            x.strokeRect(cx-casingW/2, casingTop, casingW, casingH); x.setLineDash([]);
+            x.fillStyle='#455a64'; x.fillRect(cx-casingW/2, casingBot-5, casingW, 5);
+            x.strokeStyle='#388e5c'; x.lineWidth=1; x.beginPath();
+            x.moveTo(0,groundY+grassH); x.lineTo(W,groundY+grassH); x.stroke();
+            x.save(); x.font='700 11px -apple-system,sans-serif';
+            x.textAlign='center'; x.textBaseline='middle';
+            const labelY=casingTop+casingH*0.26, lw=116, lh=22, lr=11;
+            const lx=cx-lw/2, ly=labelY-lh/2;
+            x.fillStyle='rgba(30,58,138,0.82)'; x.beginPath();
+            x.moveTo(lx+lr,ly); x.lineTo(lx+lw-lr,ly);
+            x.quadraticCurveTo(lx+lw,ly,lx+lw,ly+lr); x.lineTo(lx+lw,ly+lh-lr);
+            x.quadraticCurveTo(lx+lw,ly+lh,lx+lw-lr,ly+lh); x.lineTo(lx+lr,ly+lh);
+            x.quadraticCurveTo(lx,ly+lh,lx,ly+lh-lr); x.lineTo(lx,ly+lr);
+            x.quadraticCurveTo(lx,ly,lx+lr,ly); x.closePath(); x.fill();
+            x.fillStyle='white'; x.fillText('Select a borehole',cx,labelY); x.restore();
+            const pc=document.getElementById('purgeBoreholeCanvas');
+            if(pc&&pc!==c){const px=pc.getContext('2d');px.clearRect(0,0,pc.width,pc.height);px.drawImage(c,0,0,pc.width,pc.height);}
+        }
+
+
         const canvas = document.getElementById('boreholeCanvas');
         const ctx = canvas ? canvas.getContext('2d') : null;
         
@@ -2430,7 +2579,7 @@ body{background:#061229}
         let savedRecoveryTests = JSON.parse(localStorage.getItem('recoveryTests')) || [];
         let testStartTime = null;
         let boreholes=[],gwPoints=[],projects=[];
-        let activeProject=null,activeBorehole=null;
+        activeProject=null,activeBorehole=null;
         let savedGasRecords=[],chemMethod='single';
         chemSelectedParams=[],chemReadings=[];
         
@@ -9738,14 +9887,34 @@ body{background:#061229}
             activeBorehole = bh;
             try { localStorage.setItem('_activeBHId', bh ? bh.id : ''); } catch(e) {}
 
-            // Update banner labels on all screens
-            const label = bh ? bh.id + (bh.description ? ' — ' + bh.description.slice(0,28) : '') : 'None selected';
-            ['calc','recovery','gw'].forEach(ctx => {
-                const el = document.getElementById('activeBHName_' + ctx);
-                if (el) el.textContent = label;
+            // Update banner labels and toggle Create/Switch states
+            const label = bh ? bh.id + (bh.description ? ' — ' + bh.description.slice(0,28) : '') : '';
+            ['calc','recovery','gw','reudi'].forEach(ctx => {
+                const nameEl   = document.getElementById('activeBHName_' + ctx);
+                const noBHEl   = document.getElementById('noBH_' + ctx);
+                const activeEl = document.getElementById('activeBHRow_' + ctx);
+                if (nameEl)   nameEl.textContent = label;
+                if (noBHEl)   noBHEl.style.display   = bh ? 'none' : 'flex';
+                if (activeEl) activeEl.style.display = bh ? 'flex' : 'none';
             });
 
-            if (!bh) return;
+            if (!bh) {
+                // Reset inline BH panels to "no BH" state
+                ['calc','recovery','chem'].forEach(ctx => {
+                    const no = document.getElementById('noBHState_' + ctx);
+                    const ac = document.getElementById('activeBHState_' + ctx);
+                    if (no) no.style.display = 'flex';
+                    if (ac) ac.style.display = 'none';
+                });
+                // Reset REUDI + purge panel too
+                ['reudi','purge'].forEach(ctx => {
+                    const no = document.getElementById('noBHState_' + ctx);
+                    const ac = document.getElementById('activeBHState_' + ctx);
+                    if (no) no.style.display = 'flex';
+                    if (ac) ac.style.display = 'none';
+                });
+                return;
+            }
             _applyActiveBHToTabs(bh);
         }
         window.setActiveBorehole = setActiveBorehole;
@@ -9753,15 +9922,39 @@ body{background:#061229}
         // Apply borehole data to all relevant tab fields
         function _applyActiveBHToTabs(bh) {
             const _s = (id, val) => { const el = document.getElementById(id); if (el && val != null) el.value = val; };
+            const _t = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val ?? '—'; };
+            const _tog = (noId, activeId, show) => {
+                const no = document.getElementById(noId);
+                const ac = document.getElementById(activeId);
+                if (no) no.style.display = show ? 'none' : 'flex';
+                if (ac) ac.style.display = show ? 'block' : 'none';
+            };
+
+            // Get latest WL from GW point
+            const gwPtA = (typeof gwPoints !== 'undefined') && gwPoints.find(p => p.id === bh.id);
+            const latestWL = gwPtA && gwPtA.readings && gwPtA.readings.length
+                ? gwPtA.readings[gwPtA.readings.length-1].depth.toFixed(2)
+                : '—';
 
             // ── Purge / Calculator tab ───────────────────────────────
             _s('bhId',      bh.id);
             _s('diameter',  bh.diameter || '');
             _s('wellDepth', bh.depth    || '');
             _s('standUp',   bh.standUp  != null ? bh.standUp : '');
-            // Set selector to match
-            const calcSel = document.getElementById('calcBHSelector');
-            if (calcSel) calcSel.value = bh.id;
+            _s('calcBHSelector', bh.id);
+            _t('calcBHDisplayId',     bh.id + (bh.description ? ' — ' + bh.description.slice(0,28) : ''));
+            _t('calcBHDisplayDiam',   bh.diameter || '—');
+            _t('calcBHDisplayDepth',  bh.depth    || '—');
+            _t('calcBHDisplayWL',     latestWL);
+            _t('calcBHDisplayStandUp',bh.standUp != null ? bh.standUp : '—');
+            _tog('noBHState_calc', 'activeBHState_calc', true);
+            // Sync purge sub-panel (samplePanelPurge mirrors calc)
+            _t('purgeBHDisplayId',     bh.id + (bh.description ? ' — ' + bh.description.slice(0,28) : ''));
+            _t('purgeBHDisplayDiam',   bh.diameter || '—');
+            _t('purgeBHDisplayDepth',  bh.depth    || '—');
+            _t('purgeBHDisplayWL',     latestWL);
+            _t('purgeBHDisplayStandUp',bh.standUp != null ? bh.standUp : '—');
+            _tog('noBHState_purge', 'activeBHState_purge', true);
             // GPS
             if (bh.lat && bh.lng && typeof capturedGPS !== 'undefined') {
                 capturedGPS = { lat: bh.lat, lng: bh.lng, acc: null };
@@ -9775,8 +9968,26 @@ body{background:#061229}
             _s('recoveryDiameter', bh.diameter || '');
             _s('recoveryWellDepth',bh.depth    || '');
             _s('recoveryStandUp',  bh.standUp  != null ? bh.standUp : '');
-            const recSel = document.getElementById('linkBorehole');
-            if (recSel) recSel.value = bh.id;
+            _s('linkBorehole', bh.id);
+            _t('recBHDisplayId',     bh.id + (bh.description ? ' — ' + bh.description.slice(0,28) : ''));
+            _t('recBHDisplayDiam',   bh.diameter || '—');
+            _t('recBHDisplayDepth',  bh.depth    || '—');
+            _t('recBHDisplayWL',     latestWL);
+            _t('recBHDisplayStandUp',bh.standUp != null ? bh.standUp : '—');
+            _tog('noBHState_recovery', 'activeBHState_recovery', true);
+            // Hide manual BH fields in recovery (pre-filled from active BH)
+            const recManBH = document.getElementById('recManualBHId');
+            const recManFlds = document.getElementById('recManualFields');
+            if (recManBH) recManBH.style.display = 'none';
+            if (recManFlds) recManFlds.style.display = 'none';
+            // ── Chemistry tab ────────────────────────────────────────
+            _s('chemBhId',  bh.id);
+            _s('chemBHSelector', bh.id);
+            _t('chemBHDisplayId',    bh.id + (bh.description ? ' — ' + bh.description.slice(0,28) : ''));
+            _t('chemBHDisplayDiam',  bh.diameter || '—');
+            _t('chemBHDisplayDepth', bh.depth    || '—');
+            _t('chemBHDisplayWL',    latestWL);
+            _tog('noBHState_chem', 'activeBHState_chem', true);
             // Pull latest GW reading as static level
             const gwPt = (typeof gwPoints !== 'undefined') && gwPoints.find(p => p.id === bh.id);
             if (gwPt && gwPt.readings && gwPt.readings.length) {
@@ -9807,7 +10018,16 @@ body{background:#061229}
             if (gwPt && gwPt.readings && gwPt.readings.length) {
                 const latestGW = gwPt.readings[gwPt.readings.length - 1];
                 _s('gasWaterLevel', latestGW.depth.toFixed(3));
+                _t('reudiDisplayWL', latestGW.depth.toFixed(3));
+            } else {
+                _t('reudiDisplayWL', '—');
             }
+            // Update REUDI display elements
+            _t('reudiDisplayId',    bh.id + (bh.description ? ' — ' + bh.description.slice(0,28) : ''));
+            _t('reudiDisplayDepth', bh.depth || '—');
+            const gpsStr = (bh.lat && bh.lng) ? `📍 ${bh.lat.toFixed(5)}, ${bh.lng.toFixed(5)}` : '';
+            _t('reudiDisplayGPS', gpsStr);
+            _tog('noBHState_reudi', 'activeBHState_reudi', true);
             // Update REUDI banner
             const _rBH = document.getElementById('activeBHName_reudi');
             if (_rBH) _rBH.textContent = bh.id + (bh.description ? ' — ' + bh.description.slice(0, 28) : '');
@@ -10023,8 +10243,9 @@ body{background:#061229}
                 const col = Math.max(0, bh.depth - wl);
                 reqL = Math.round(Math.PI*r*r*col*1000*3*10)/10;
             }
-            if (!reqL) { const pd=document.getElementById('purgeDisplay'); if(pd) reqL=parseFloat(pd.textContent)||null; }
-            reqEl.textContent = reqL ? reqL.toFixed(1)+' L' : '— L';
+            // Only fall back to purgeDisplay if a BH is actually active
+            if (!reqL && activeBorehole) { const pd=document.getElementById('purgeDisplay'); if(pd) reqL=parseFloat(pd.textContent)||null; }
+            reqEl.textContent = reqL ? reqL.toFixed(1)+' L' : '—';
             const pumpRate = parseFloat(document.getElementById('chemPumpRate')?.value)||0;
             if (minEl) {
                 if (reqL && pumpRate > 0) {

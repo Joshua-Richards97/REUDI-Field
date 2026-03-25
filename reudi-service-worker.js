@@ -18,13 +18,11 @@ self.addEventListener('activate', e => {
 });
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-
-  // HTML (entry point) → ALWAYS network
+  // HTML (entry point) → ALWAYS network first for instant updates
   if (e.request.destination === 'document') {
-    e.respondWith(fetch(e.request));
+    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
-
   // Everything else → cache-first
   e.respondWith(
     caches.match(e.request).then(cached => {
