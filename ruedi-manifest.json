@@ -1,0 +1,30 @@
+{
+  "name": "Ruedi Field",
+  "short_name": "Ruedi Field",
+  "description": "MiniRUEDI gas analysis and groundwater field companion.",
+  "start_url": "./ruedi-field.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#16305a",
+  "theme_color": "#16305a",
+  "lang": "en",
+  "categories": [
+    "utilities",
+    "productivity",
+    "science"
+  ],
+  "icons": [
+    {
+      "src": "ruedi-icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "ruedi-icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
